@@ -1,0 +1,107 @@
+INFORMACIÓN DEL NEGOCIO - LOTE DE AUTOS EJEMPLO
+================================================
+
+NOMBRE DEL NEGOCIO: AutoServicios Martínez
+DIRECCIÓN: Av. Insurgentes 1234, Col. Centro, Monterrey, N.L.
+TELÉFONO: (81) 1234-5678
+WHATSAPP: +52 81 1234-5678
+EMAIL: contacto@autoserviciosmartinez.com
+
+HORARIOS:
+- Lunes a Viernes: 8:00 AM - 6:00 PM
+- Sábado: 8:00 AM - 2:00 PM
+- Domingo: Cerrado
+
+---
+
+SERVICIOS DISPONIBLES Y PRECIOS:
+
+MANTENIMIENTO BÁSICO:
+- Cambio de aceite convencional (incluye filtro): $450
+- Cambio de aceite sintético (incluye filtro): $850
+- Afinación menor (bujías + filtro aire): $1,200
+- Afinación mayor (bujías + filtro aire + filtro combustible + revisión general): $2,500
+
+FRENOS:
+- Revisión de frenos (gratis con cualquier servicio): $0
+- Cambio de balatas delanteras (por eje): $900 - $1,500 (según la marca del vehículo)
+- Cambio de balatas traseras (por eje): $800 - $1,400
+- Rectificado de discos: $600 por disco
+- Cambio de discos: $1,200 - $2,000 por par
+
+LLANTAS Y ALINEACIÓN:
+- Alineación computarizada (4 ruedas): $350
+- Balanceo (por llanta): $80
+- Rotación de llantas: $200
+- Inflado con nitrógeno: $50 por llanta
+
+SISTEMA ELÉCTRICO:
+- Revisión eléctrica general: $300
+- Cambio de batería (mano de obra): $150 (la batería se cotiza aparte según el vehículo)
+- Revisión y recarga de aire acondicionado: $800
+
+OTROS SERVICIOS:
+- Lavado exterior básico: $150
+- Lavado completo (interior + exterior): $350
+- Pulido y encerado: desde $800
+- Diagnóstico con escáner: $400
+
+---
+
+REFACCIONES DISPONIBLES:
+Contamos con refacciones para las principales marcas:
+- Chevrolet, Ford, Nissan, Toyota, Honda, Volkswagen, Hyundai, Kia
+
+Si no tenemos la refacción en existencia, la pedimos y llega en 24-48 horas.
+Damos garantía de 3 meses en todas nuestras refacciones instaladas.
+
+---
+
+PAQUETES ESPECIALES:
+
+PAQUETE BÁSICO - $1,800:
+- Cambio de aceite sintético
+- Rotación de llantas
+- Revisión de frenos
+- Revisión de niveles (agua, anticongelante, líquido frenos)
+- Revisión visual general
+
+PAQUETE COMPLETO - $3,500:
+- Todo lo del paquete básico
+- Afinación menor
+- Alineación y balanceo
+- Revisión eléctrica
+- Lavado completo
+
+---
+
+FORMAS DE PAGO:
+- Efectivo
+- Tarjeta de crédito o débito (sin comisión)
+- Transferencia bancaria
+
+---
+
+GARANTÍAS:
+- Mano de obra: 1 mes o 5,000 km (lo que ocurra primero)
+- Refacciones instaladas: 3 meses
+
+---
+
+CITAS:
+Para agendar una cita necesitamos:
+1. Tu nombre
+2. Tipo de servicio que necesitas
+3. Marca, modelo y año de tu vehículo
+4. Día y hora de preferencia
+
+Las citas tienen una tolerancia de 15 minutos.
+Si no puedes asistir, por favor avísanos con al menos 2 horas de anticipación.
+
+---
+
+NOTAS IMPORTANTES:
+- Los precios pueden variar según el tipo o modelo de vehículo
+- Para vehículos de lujo o europeos, los precios pueden ser diferentes
+- Aceptamos vehículos de cualquier marca
+- Ofrecemos servicio a domicilio para cambio de aceite y batería (solo zona metropolitana, costo adicional de $200)
