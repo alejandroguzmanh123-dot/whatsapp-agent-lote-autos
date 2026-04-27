@@ -1,5 +1,5 @@
 """
-Agente de WhatsApp para Lote de Autos
+Agente de WhatsApp para Lote de Autosh
 MVP - Servicios y Refacciones
 
 Compatible con:
@@ -26,7 +26,7 @@ app = FastAPI(title="Agente WhatsApp - Lote de Autos")
 
 # Cargar el documento del cliente al iniciar el servidor
 # El archivo debe estar en la carpeta /docs con cualquier nombre
-DOCUMENTO_INFO = cargar_documento("docs/")
+DOCUMENTO_INFO = cargar_documento(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs"))
 
 
 # ---------------------------------------------
