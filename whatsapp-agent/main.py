@@ -1,5 +1,5 @@
 """
-Agente de WhatsApp para Lote de Autosh
+Agente de WhatsApp para Lote de Autos
 MVP - Servicios y Refacciones
 
 Compatible con:
@@ -26,7 +26,8 @@ app = FastAPI(title="Agente WhatsApp - Lote de Autos")
 
 # Cargar el documento del cliente al iniciar el servidor
 # El archivo debe estar en la carpeta /docs con cualquier nombre
-DOCUMENTO_INFO = cargar_documento(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs"))
+DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
+DOCUMENTO_INFO = cargar_documento(DOCS_DIR)
 
 
 # ---------------------------------------------
@@ -67,6 +68,10 @@ async def webhook_twilio(
 VERIFY_TOKEN = os.getenv("META_VERIFY_TOKEN", "mi_token_secreto")
 META_ACCESS_TOKEN = os.getenv("META_ACCESS_TOKEN", "")
 META_PHONE_NUMBER_ID = os.getenv("META_PHONE_NUMBER_ID", "")
+
+# Imagen de bienvenida (se envia solo la primera vez que un cliente escribe)
+IMAGE_BIENVENIDA = "https://raw.githubusercontent.com/alejandroguzmanh123-dot/whatsapp-agent-lote-autos/main/whatsapp-agent/images/concesionario.jpg.jpeg"
+primeros_contactos: set = set()
 
 
 @app.get("/webhook/meta")
@@ -120,7 +125,16 @@ async def webhook_meta(request: Request):
 
         logger.info(f"[Meta] Respuesta: {respuesta}")
 
-        # Enviar respuesta via Meta API
+        # Si es el primer mensaje del cliente, enviar imagen de bienvenida primero
+        if numero_cliente not in primeros_contactos:
+            primeros_contactos.add(numero_cliente)
+            await enviar_imagen_meta(
+                numero_cliente,
+                IMAGE_BIENVENIDA,
+                "Bienvenido a AutoMax!"
+            )
+
+        # Enviar respuesta de texto via Meta API
         await enviar_mensaje_meta(numero_cliente, respuesta)
 
     except (KeyError, IndexError) as e:
@@ -132,7 +146,7 @@ async def webhook_meta(request: Request):
 def normalizar_numero_mexicano(numero: str) -> str:
     """
     WhatsApp Cloud API entrega numeros mexicanos moviles con un 1 extra:
-      521XXXXXXXXXX  ->  52XXXXXXXXXX
+      521XXXXXXXXXX -> 52XXXXXXXXXX
     Esta funcion quita el 1 redundante cuando aplica.
     """
     n = numero.lstrip("+")
@@ -140,6 +154,28 @@ def normalizar_numero_mexicano(numero: str) -> str:
         n = "52" + n[3:]
         logger.info(f"[Meta] Numero normalizado: {numero} -> {n}")
     return n
+
+
+async def enviar_imagen_meta(numero: str, url: str, caption: str = ""):
+    """Envia una imagen via Meta WhatsApp Cloud API usando un link externo."""
+    numero = normalizar_numero_mexicano(numero)
+    url_api = f"https://graph.facebook.com/v19.0/{META_PHONE_NUMBER_ID}/messages"
+    headers = {
+        "Authorization": f"Bearer {META_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": numero,
+        "type": "image",
+        "image": {"link": url, "caption": caption},
+    }
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(url_api, json=payload, headers=headers)
+        if resp.status_code != 200:
+            logger.error(f"[Meta] Error enviando imagen: {resp.text}")
+        else:
+            logger.info(f"[Meta] Imagen enviada a {numero}")
 
 
 async def enviar_mensaje_meta(numero: str, mensaje: str):
