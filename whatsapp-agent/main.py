@@ -15,7 +15,11 @@ import httpx
 from dotenv import load_dotenv
 
 from claude_handler import responder_mensaje
-from doc_reader import cargar_documento
+from google_sheets_reader import (
+    cargar_informacion,
+    buscar_archivos_por_mensaje,
+    construir_url_drive,
+)
 
 load_dotenv()
 
@@ -23,11 +27,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Agente WhatsApp - Lote de Autos")
-
-# Cargar el documento del cliente al iniciar el servidor
-# El archivo debe estar en la carpeta /docs con cualquier nombre
-DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
-DOCUMENTO_INFO = cargar_documento(DOCS_DIR)
 
 
 # ---------------------------------------------
@@ -44,10 +43,11 @@ async def webhook_twilio(
     """
     logger.info(f"[Twilio] Mensaje de {From}: {Body}")
 
+    documento = cargar_informacion()
     respuesta = await responder_mensaje(
         mensaje=Body,
         numero_cliente=From,
-        documento=DOCUMENTO_INFO,
+        documento=documento,
     )
 
     logger.info(f"[Twilio] Respuesta: {respuesta}")
@@ -117,10 +117,13 @@ async def webhook_meta(request: Request):
         texto = mensaje_data["text"]["body"]
         logger.info(f"[Meta] Mensaje de {numero_cliente}: {texto}")
 
+        # Cargar información del negocio desde Google Sheets (con cache)
+        documento = cargar_informacion()
+
         respuesta = await responder_mensaje(
             mensaje=texto,
             numero_cliente=numero_cliente,
-            documento=DOCUMENTO_INFO,
+            documento=documento,
         )
 
         logger.info(f"[Meta] Respuesta: {respuesta}")
@@ -134,14 +137,27 @@ async def webhook_meta(request: Request):
                 "Bienvenido a AutoMax!"
             )
 
-        # Enviar respuesta de texto via Meta API
+        # Enviar respuesta de texto
         await enviar_mensaje_meta(numero_cliente, respuesta)
+
+        # Buscar archivos (imágenes/PDFs) relacionados con el mensaje y enviarlos
+        archivos = buscar_archivos_por_mensaje(texto)
+        for archivo in archivos:
+            url = construir_url_drive(archivo["file_id"])
+            if archivo["tipo"] == "pdf":
+                await enviar_pdf_meta(numero_cliente, url, archivo["nombre"])
+            else:
+                await enviar_imagen_meta(numero_cliente, url, archivo["nombre"])
 
     except (KeyError, IndexError) as e:
         logger.error(f"[Meta] Error procesando mensaje: {e}")
 
     return {"status": "ok"}
 
+
+# ---------------------------------------------
+#  FUNCIONES DE ENVÍO
+# ---------------------------------------------
 
 def normalizar_numero_mexicano(numero: str) -> str:
     """
@@ -178,6 +194,31 @@ async def enviar_imagen_meta(numero: str, url: str, caption: str = ""):
             logger.info(f"[Meta] Imagen enviada a {numero}")
 
 
+async def enviar_pdf_meta(numero: str, url: str, nombre: str = "documento.pdf"):
+    """Envia un PDF via Meta WhatsApp Cloud API usando un link externo."""
+    numero = normalizar_numero_mexicano(numero)
+    url_api = f"https://graph.facebook.com/v19.0/{META_PHONE_NUMBER_ID}/messages"
+    headers = {
+        "Authorization": f"Bearer {META_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": numero,
+        "type": "document",
+        "document": {
+            "link": url,
+            "filename": nombre if nombre.endswith(".pdf") else nombre + ".pdf",
+        },
+    }
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(url_api, json=payload, headers=headers)
+        if resp.status_code != 200:
+            logger.error(f"[Meta] Error enviando PDF: {resp.text}")
+        else:
+            logger.info(f"[Meta] PDF enviado a {numero}")
+
+
 async def enviar_mensaje_meta(numero: str, mensaje: str):
     """Envia un mensaje de texto via Meta WhatsApp Cloud API."""
     numero = normalizar_numero_mexicano(numero)
@@ -203,8 +244,9 @@ async def enviar_mensaje_meta(numero: str, mensaje: str):
 # ---------------------------------------------
 @app.get("/")
 async def root():
+    documento = cargar_informacion()
     return {
         "status": "ok",
         "agente": "Lote de Autos - Servicios y Refacciones",
-        "documento_cargado": bool(DOCUMENTO_INFO),
+        "documento_cargado": bool(documento),
     }
